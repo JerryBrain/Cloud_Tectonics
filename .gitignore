@@ -1,4 +1,4 @@
-# Gradle cache and build folders
+ï»¿# Gradle cache and build folders
 .gradle/
 build/
 
@@ -25,5 +25,7 @@ Thumbs.db
 # User custom ignore rules
 error_report/
 *.zip
-Ê¹ÓÃËµÃ÷.md
-¿ª·¢ËµÃ÷ÎÄµµ.md
+
+# Ignore specific documentation markdown files
+ä½¿ç”¨è¯´æ˜.md
+å¼€å‘è¯´æ˜æ–‡æ¡£.md
