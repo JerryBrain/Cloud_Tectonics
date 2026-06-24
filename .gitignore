@@ -21,3 +21,9 @@ run/
 # Operating system files
 Thumbs.db
 .DS_Store
+
+# User custom ignore rules
+error_report/
+*.zip
+使用说明.md
+开发说明文档.md
