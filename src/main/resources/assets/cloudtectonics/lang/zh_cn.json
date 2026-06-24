@@ -1,0 +1,8 @@
+{
+  "block.cloudtectonics.building_anchor": "建筑锚点",
+  "block.cloudtectonics.building_proxy": "建筑代理",
+  "item.cloudtectonics.building_anchor": "建筑锚点棒",
+  "creativetab.cloudtectonics": "云构",
+  "key.cloudtectonics.debug_toggle": "开启/关闭调试记录",
+  "key.categories.cloudtectonics": "云构"
+}

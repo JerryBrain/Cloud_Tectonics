@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "cloudtectonics:block/building_proxy" }
+  }
+}

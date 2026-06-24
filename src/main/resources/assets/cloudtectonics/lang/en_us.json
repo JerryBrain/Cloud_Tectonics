@@ -1,0 +1,8 @@
+{
+  "block.cloudtectonics.building_anchor": "Building Anchor",
+  "block.cloudtectonics.building_proxy": "Building Proxy",
+  "item.cloudtectonics.building_anchor": "Building Anchor Stick",
+  "creativetab.cloudtectonics": "Cloud Tectonics",
+  "key.cloudtectonics.debug_toggle": "Toggle Debug Recording",
+  "key.categories.cloudtectonics": "Cloud Tectonics"
+}
