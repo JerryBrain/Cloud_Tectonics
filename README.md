@@ -1,97 +1,84 @@
-# Cloud Tectonics (云构营造)
+# 云构营造 (Cloud Tectonics)
 
-`Cloud Tectonics` is a parametric Chinese architecture generator mod for Minecraft (1.20.1) built on the Architectury multi-platform loader (supporting both Forge and Fabric). It translates classical Chinese architectural treatises (such as the Song Dynasty *Yingzao Fashi* 《营造法式》) into high-precision, performant structural voxel assemblies.
+[🌐 English Version](README_EN.md)
 
-`云构营造` 是一个基于 Architectury 多端框架（支持 Forge 与 Fabric）的 Minecraft (1.20.1) 参数化华夏营造模组。它将华夏大木作营造规则（如宋代《营造法式》）转化为高精度、高性能的参数化三维木构与大屋顶体素结构。
-
----
-
-## 🌟 Core Features & Capabilities / 项目特色与模组功能
-
-### 1. What This Mod Can Do / 模组功能用途
-* **Da Mu Zuo Procedural Assembly (大木作程序化生成)**: Dynamically generates columns, ties (额枋), primary beams (梁架), purlins (檩), rafters (椽), and classical eaves layers based on configurable architectural templates.
-* **Dougong Bracket Sets (斗拱铺作系统)**: Parametric building of traditional Gong-Dou bracket sets, supporting complex configurations (e.g., Ang cantilevers using Wedge geometries/斜向三角昂).
-* **Multi-story Timber Towers (多层阁楼重檐)**: Vertical stack generator supporting automatic column net shrinkage (收分), mezzanine waist eaves (腰檐), and floor decks.
-* **Collision Proxy Grid (物理碰撞代理)**: Spawns lightweight, accurate physical proxy blocks mapped onto the complex OBB boundaries of the building, preventing large "invisible wall" artifacts while protecting structures.
-
-### 2. Project Features / 项目特色
-* **1/16 Voxel-Pixel Snapping (1/16 像素级高精对齐)**: Locks all component boundaries to the $1/16$ block grid ($0.0625$ units), preventing model joints from overlapping or floating.
-* **Cai-Fen Proportion System (营造材份比例制)**: Sells all component thickness, spacing, and diameters proportionally based on standard *Cai* and *Fen* units ($1 \text{ Cai} = 15 \text{ Fen}$).
-* **Skeletal Node Graph (骨架节点树驱动)**: Anchors components (beams, purlins, tiles) to dynamically shifting nodes (e.g. column tops) to prevent clipping and floating when changing dimensions.
-* **O(1) Static VBO Rendering (VBO 烘焙高性能渲染)**: Bakes thousands of timber components into a single GPU `VertexBuffer` (VBO), reducing draw calls to $O(1)$ and preventing tick-by-tick lag.
-* **Ponder-style 3D Editor (3D 交互营造编辑器)**: Allows developers/players to configure timber dimensions, roof pitch, bays, and depths inside a real-time 3D interactive UI.
+`云构营造` 是一个基于 Architectury 多端框架（支持 Forge 与 Fabric）的 Minecraft (1.20.1) 参数化华夏营造生成模组。它将华夏大木作营造规则（如宋代《营造法式》）转化为高精度、高性能的参数化三维木构与大屋顶体素结构。
 
 ---
 
-## 🎮 How to Use / 使用说明
+## 🏛️ 模组功能用途（项目实现了什么）
 
-1. **Building Wand (建筑棒)**:
-   * **Shift + Right-Click (Shift+右击)**: Opens the local JSON Preset Selection Screen (营造预设选择面板) to browse or save layout profiles.
-   * **Right-Click ground (右击地面)**: Spawns a 3D hologram preview (虚影) of the target building.
-   * **Mouse Wheel (单滚轮)**: Rotates the holographic preview in $15^\circ$ steps.
-2. **Anchor Block (建筑中心锚点方块)**:
-   * Right-click the placed Anchor Block to open the **3D Interactive Editor UI** (3D 交互营造编辑器). Adjust the number of bays, depths, column height, roof pitch, and Dougong level in real time.
-   * Confirming the build (确认建造) triggers the server to place physical proxy blocks and bakes the final VBO meshes.
-3. **Debug Render (物理碰撞可视化)**:
-   * Press **F10** (in debug mode) to trigger an X-Ray overlay visualizing the exact bounding box range of the physical collision proxies.
+本模组实现了一套大木作参数化公式引擎，能够直接在游戏内通过调整参数，程序化生成符合华夏经典规制的建筑构件：
+
+* **大木作构件程序化拼装**：动态生成柱网、额枋、梁架（如三架梁、五架梁、七架梁）、檩条、椽子以及屋面瓦垄。
+* **斗拱铺作系统**：参数化生成斗拱，支持复杂的斜向“昂身”与“昂嘴”三角斜切几何体结构。
+* **重檐与多层楼阁堆叠**：支持垂直多层楼阁堆叠，层间自动拼装楼板平台与腰檐，并支持上层柱网向上层层收缩（收分）。
+* **物理碰撞与防空气墙代理**：在服务器端自动铺设轻量化代理方块，拦截破坏事件以保护建筑，并利用 OBB 分离轴定理判定物理占用，彻底杜绝空气墙。
 
 ---
 
-## 🏗️ Architecture & Decoupling / 架构设计与平台解耦
+## 🌟 项目特色
 
-The codebase utilizes the **Architectury Multi-loader** structure, decoupling core mathematical logic from platform-specific APIs:
-
-* **`common/` (公共核心模块)**:
-  * `math/`: Core generator engine containing Cai-Fen calculations, `SkeletonNodeGraph`, component boundary snapping, and OBB collision intersection using the **Separating Axis Theorem (SAT)**.
-  * `block/` & `blockentity/`: Anchor block logic and proxy coordinate forwarding.
-  * `client/`: Interactive editors, preset managers, and the VBO-baked block atlas renderer.
-* **`forge/` (Forge 平台模块)**:
-  * Platform entry point, registry redirects, and Forge-specific events (e.g. keybindings, preview rendering, and `ProxyBlockBakedModel` dynamic override).
-* **`fabric/` (Fabric 平台模块)**:
-  * Platform entry point, registry redirects, and Fabric API event hook listeners (world rendering, HUD overlay, and tick listeners).
+* **1/16 像素级高精对齐**：所有几何组件的偏移与尺寸均规整到 1/16 格网（0.0625 方块），保证生成的模型细节完全符合 Minecraft 方块精度，杜绝拼接空隙。
+* **大木作“材份”模块比例**：引入《营造法式》比例标准（1 材 = 15 分），立柱、梁架、斗拱等尺寸参数完全基于材/分模块换算，支持整栋建筑等比例无级缩放。
+* **骨架节点树驱动**：建立中央骨架节点（立柱顶、檩条中心、正脊等），构件直接挂接到节点上进行拉伸或对齐，在物理上杜绝了修改参数时产生“穿模”与“悬空”漏洞。
+* **O(1) VBO 静态烘焙渲染**：每一栋建筑的所有几何构件都在数据改变时一次性烘焙进 GPU 显存段（VertexBuffer），每一帧绘制仅需单次 Draw Call 绘制，极大释放 CPU 压力，复杂建筑同屏无卡顿。
+* **思考风格 3D 营造编辑器**：玩家右击锚点方块即可打开 3D 交互配置界面，实时直观地调整大木作参数并预览模型。
 
 ---
 
-## 🗺️ Technical Roadmap & Evolution / 技术路线与未来演进
+## 🎮 使用说明
 
-Based on the core engine, the project is planned to evolve along the following roadmap:
-
-### 1. Component Partial Destruction (构件级局部破坏系统)
-* **EN**: Raycast-based high-precision line-of-sight intersection. Clicking a proxy block calculates intersection points with all sub-component AABBs, allowing players to destroy individual tiles or beams while keeping the surrounding structure intact.
-* **ZH**: 视角射线求交检测。左击破坏物理代理方块时，自动判定与子构件包围盒（AABB）的真实交点，允许玩家单独敲下部分瓦片或横梁而保留其他木构，动态更新渲染 VBO。
-
-### 2. Snapping Interior Decoration (高精度吸附式内饰系统)
-* **EN**: Support virtual decorations (`DecorationComponent`) with dynamic floating-point coordinates. Utilize raycasting to snap furniture to timber faces (wall-snapping/ground-alignment) and merge voxel shapes for precise collision.
-* **ZH**: 虚拟内饰子组件，使用局部浮点数空间三维坐标。在放置时进行表面几何碰撞计算，使其精准吸附于构件面并进行多内饰碰撞箱融合。
-
-### 3. Custom Plaques, Couplets & Paintings (牌匾对联与挂画自定义)
-* **EN**: Render custom text and image uploads directly onto in-game plaques, scrolls, and couplets. Utilizes AWT `Graphics2D` to dynamically layout calligraphy fonts (`.ttf`/`.otf`) and clip image ratios onto dynamic textures.
-* **ZH**: 牌匾、对联与中式挂画的自定义文字/图片渲染。在客户端通过 Java AWT 的 `Graphics2D` 在内存中渲染反走样书法字体与自适应裁剪的本地图片，实时上传至动态纹理。
-
-### 4. Specialized World Editor (专属古建世界编辑器)
-* **EN**: Provides non-destructive, single-frame NBT copy/paste operations using the Building Wand. Supports axis nudges, mirroring structures, and transaction stacks for complete undo/redo capabilities.
-* **ZH**: 专属参数化轻量级编辑器。手持建筑棒可一键克隆/粘贴锚点 NBT，支持方向键无卡顿轴向平移、对称镜像，以及防地形压碎的撤销/重做操作栈。
-
-### 5. Radial Quick Menu & HUD Dock (免指令轮盘与 HUD 快速交互)
-* **EN**: A frosted-glass-styled Radial Menu triggered via hotkeys to execute actions (rotate, duplicate, mirror, undo). Dock layouts and combinations of modifier keys (Ctrl/Shift + scroll) make building interactive and friction-free.
-* **ZH**: 玻璃拟态环形轮盘与 HUD Dock 栏。支持快捷热键呼出极坐标扇区轮盘进行编辑操作，使用 Ctrl/Shift+滚轮微调高度及角度。
-
-### 6. Component Grouping & Prefabs (构件组合与内饰预制件)
-* **EN**: Group components into templates (e.g. table-chair sets, truss segments) defined via JSON. Support layout transformations using nesting trees or flat matrices.
-* **ZH**: 支持从 NBT/JSON 结构导入预制件组合（如桌椅茶具套件、特定开间梁架组），在渲染与碰撞系统中使用嵌套矩阵树递归计算。
+1. **手持“建筑棒” (Building Wand)**：
+   * **Shift + 右击**：打开营造预设选择面板，可以保存或读取本地的 JSON 预设。
+   * **右击地面**：在目标位置放置大殿的 3D 虚影预览。
+   * **鼠标滚轮**：以 15° 为步长任意旋转虚影朝向。
+2. **建筑中心锚点方块 (Anchor Block)**：
+   * 右击已放置的锚点方块即可打开 **3D 交互配置界面**。在此界面调整开间数、进深数、柱高、屋顶坡度、斗拱等级等。
+   * 点击确认建造后，服务器将生成物理代理方块，客户端完成 VBO 烘焙渲染。
+3. **物理碰撞可视化 (Debug 模式)**：
+   * 在调试状态下，按下 **F10** 键可开启碰撞包围盒的 X-Ray 透视显示，方便查看代理方块在世界中的物理占用。
 
 ---
 
-## 🛠️ Build & Run / 编译与调试
+## 🏗️ 架构设计与模块划分
 
-* **Compile Java Code (编译验证)**:
+项目采用 **Architectury Multi-loader** 跨平台架构，实现核心运算逻辑与平台 API 的完全解耦：
+
+* **`common/` (通用核心模块)**：
+  * `math/`：古建生成核心（材份制计算、骨架节点树构建、OBB 碰撞 SAT 判定、歇山顶数学模型）。
+  * `block/` & `blockentity/`：通用锚点逻辑与代理方块坐标同步转发。
+  * `client/`：3D 营造编辑器界面、预设 JSON 管理器、静态 VBO 渲染器。
+* **`forge/` (Forge 平台专属)**：
+  * 处理 Forge 专属注册、订阅客户端按键与渲染拦截总线、动态模型烘焙重画。
+* **`fabric/` (Fabric 平台专属)**：
+  * 处理 Fabric 专属注册、注册 Fabric API 世界渲染/HUD/Tick 事件监听回调。
+
+---
+
+## 🗺️ 技术路线与未来演进
+
+本模组规划的未来演进路线如下，旨在向更加自由、智能的古建生成与管理方向发展：
+
+1. **构件级局部破坏系统**：引入视角射线求交检测。当玩家破坏代理方块时，精确计算射线与子构件包围盒的相交点，支持单片瓦或单根梁的拆除，动态重绘 VBO 而保持其余结构完整。
+2. **高精度吸附式内饰系统**：支持家具组件（DecorationComponent）以浮点数局部坐标形式存储。放置时利用射线计算构件表面交点，实现精准贴墙/摆地吸附，并融合 VoxelShape 提供物理碰撞。
+3. **牌匾对联与挂画自定义**：设计 3D 牌匾、对联模型，在客户端通过 Java AWT 的 `Graphics2D` 在内存中渲染反走样书法字体（支持玩家自定义 `.ttf`），并将本地图片（PNG/JPG）自适应裁剪为壁画上传至动态纹理。
+4. **专属古建区域编辑器**：手持建筑棒可一键复制锚点的 NBT 参数，实现 3D 虚影快捷平移、镜像对称（自动对轴向与旋转取反），以及带有撤销/重做（Undo/Redo）历史操作栈的编辑防悔药。
+5. **免指令环形轮盘与 HUD 快速交互**：手持建筑棒时按住热键呼出玻璃拟态环形轮盘快速操作，HUD 底部常驻小工具栏，支持 Ctrl/Shift+滚轮微调距离和高度。
+6. **构件组合与内饰预制件包**：在 `prefabs.json` 中配置家具或梁架组合包，在生成和渲染阶段使用嵌套树状图（Nested Transform Tree）或平铺矩阵将组合动态混入构件列表中。
+
+---
+
+## 🛠️ 编译与调试指令
+
+* **编译所有模块代码（验证正误）**：
   ```powershell
   ./gradlew compileJava
   ```
-* **Build remap distribution JARs (构建分发包)**:
+* **执行全平台构建（打包分发）**：
   ```powershell
   ./gradlew build -x test
   ```
-* **Run client locally (本地沙盒调试)**:
-  * **Forge**: `./gradlew :forge:runClient`
-  * **Fabric**: `./gradlew :fabric:runClient`
+* **运行本地开发沙盒**：
+  * **Forge 版本**：`./gradlew :forge:runClient`
+  * **Fabric 版本**：`./gradlew :fabric:runClient`
