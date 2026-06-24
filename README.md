@@ -1,73 +1,58 @@
 # Cloud Tectonics (云构营造)
 
-A multi-platform (Forge & Fabric) Minecraft mod for parametric generation of traditional Chinese architecture, featuring high-precision block alignment, historical proportion modules (Cai-Fen), multi-story stacking, and custom wedge-shaped geometry.
+A multi-platform, parametric architectural generation framework for Minecraft, designed to procedurally reconstruct traditional Chinese timber-frame structures ("Da Mu Zuo" 大木作) with pixel-level grid precision.
 
-这是一个支持多平台（Forge & Fabric）的 Minecraft 参数化华夏古建营造模组。它具备高精度方块网格对齐、历史比例模块（材份制）、多层重檐叠落以及自定义斜切角（昂）几何体渲染等功能。
-
----
-
-## 🌟 Key Features / 主要特性
-
-### 1. Parametric Chinese Architecture (参数化华夏营造)
-- **EN**: Generates classical Chinese roof shapes (e.g., Xieshan Roof / 歇山顶) and timber frames dynamically based on configurable parameters (bays, depths, pitch, eaves length, and corner lift).
-- **ZH**: 基于可配置参数（开间、进深、屋面坡度、出檐长度、翼角起翘等）动态生成经典的华夏大木作与屋顶结构（如歇山顶）。
-
-### 2. Cai-Fen Proportion System (材份制比例比例)
-- **EN**: Implements the ancient "Yingzao Fashi" modular system ($1\text{ Cai} = 15\text{ Fen}$). All component dimensions (column diameters, beam thickness, Dougong modules) scale proportionally.
-- **ZH**: 引入《营造法式》中的材份制比例系统（1 材 = 15 分），所有构件尺寸（柱径、梁高、斗拱模块）均按比例完美缩放。
-
-### 3. Pixel-Accurate Snapping (亚像素网格对齐)
-- **EN**: Snaps all structural boundaries to the $1/16$ grid ($0.0625$ blocks) to guarantee perfect Minecraft-style pixel alignment with zero visual gaps or floating-point overlap errors.
-- **ZH**: 将所有构件边界严格对齐至 $1/16$ 像素网格（0.0625 方块），确保 Minecraft 方块风格的完美对齐，消除悬空与错位。
-
-### 4. Ang Wedge Geometry (斜切角“昂”结构)
-- **EN**: Uses custom `WEDGE` shape rendering to support the slanted cantilever structures ("Ang" 昂) of Dougong, built using efficient GPU degenerate-quad baking.
-- **ZH**: 使用自定义的 `WEDGE`（三棱镜/斜切块）几何体渲染，支持斗拱中倾斜的“昂”结构，并通过 GPU 顶点烘焙优化渲染性能。
-
-### 5. Multi-Story Stacking (重檐多层楼阁)
-- **EN**: Supports vertical stacking for multi-story pagodas/pavilions with automatic column grid shrinkage (收分) and mezzanine waist eaves (腰檐).
-- **ZH**: 支持垂直链式叠落生成多层楼阁与重檐殿宇，具备柱网自动收分和楼层间腰檐、楼面铺作的自动构建。
-
-### 6. Seamless Rendering (极小接缝消除)
-- **EN**: Utilizes a visual geometry inflation of `0.005` blocks to eliminate sub-pixel rasterization seams on roof tiles and wall panels, while keeping physics collision boxes perfectly snap-aligned.
-- **ZH**: 对渲染几何体应用 `0.005` 像素级微小膨胀，消除瓦片和山墙板在 GPU 栅格化时产生的亚像素缝隙，同时保持精准的物理碰撞箱。
+这是一个面向 Minecraft 的多平台参数化华夏营造生成框架，旨在高精度方块网格下以程序化方式复原华夏大木作木构建筑体系。
 
 ---
 
-## 📂 Project Structure / 项目结构
+## 🏛️ What We Implement / 项目实现
+
+`Cloud Tectonics` implements a parametric math compiler that translates classical Chinese architectural treatises (such as the Song Dynasty *Yingzao Fashi* 《营造法式》) into structural voxel components in Minecraft:
+
+* **Da Mu Zuo Construction (大木作结构生成)**: Dynamic generation of column grids, primary beams, purlins, rafters, and the complex Gong-Dou bracket set (斗拱) system.
+* **Classical Roof Shapes (华夏大屋顶形制)**: Parameterized mathematical models for curved roof slopes, corner lift (翼角起翘), and eaves extensions, including classical forms such as the Xieshan Roof (歇山顶).
+* **Modular Proportion System (历史材份制比例)**: Scaling of all timber components (diameters, thickness, span) using the historically accurate *Cai-Fen* (材份制) module units ($1 \text{ Cai} = 15 \text{ Fen}$).
+* **Multi-story Structures (多层楼阁叠落)**: Support for vertical stacking and grid shrinkage (收分) for multi-story pavilions, automated with floor decks and waist eaves (腰檐).
+* **Wedge Geometry Rendering (斜面“昂”几何体)**: Custom wedge shape rendering for the slanted cantilever structures ("Ang" 昂) of Dougong, baked directly into GPU Vertex Buffers (VBOs).
+
+---
+
+## 🏗️ Architecture / 系统架构
+
+The framework is structured as a multi-platform modular project using Architectury, decoupling pure mathematical layout calculation from platform-specific rendering and voxel manipulation:
 
 ```
 .
-├── common/             # Common code & parametric math library (通用逻辑与大木作数学模型)
-├── forge/              # Forge-specific platform implementations & proxy blocks (Forge 适配层)
-├── fabric/             # Fabric-specific platform implementations (Fabric 适配层)
-└── build.gradle        # Multi-platform gradle setup (多平台构建配置)
+├── common/             # Main Architecture Engine & Mathematical Generator
+│   ├── math/           # Cai-Fen calculations, Skeleton Node Graph, Component baking
+│   ├── block/          # Anchor control logic & proxy blocks
+│   └── client/         # Client-side UI & O(1) Draw Call static VBO renderer
+├── forge/              # Forge-specific platform implementations & proxy hookup
+└── fabric/             # Fabric-specific platform implementations & event handler hooks
 ```
+
+### Key Architectural Pillars:
+1. **Skeletal Node Graph (骨架节点树)**: Component positions are not calculated using absolute coordinates, but rather anchored to a skeletal node tree (columns, purlin centers, ridge lines). When parameters change, the nodes shift, and components adapt dynamically to prevent clipping.
+2. **Static Vertex Baking (静态顶点烘焙)**: Instead of costly tick-by-tick rendering, all component geometries are baked into a single `VertexBuffer` (VBO) on-demand, achieving $O(1)$ Draw Call performance for complex structures.
+3. **Decoupled Proxy Blocks (解耦代理方块)**: A central control block manages the structure's state, while lightweight "Proxy Blocks" handle local collision shapes and in-world interaction on-demand.
 
 ---
 
-## 🛠️ Build & Run / 构建与运行
+## 🗺️ Roadmap & Future / 技术路线与未来规划
 
-### Prerequisite / 前提条件
-- **JDK 17** or higher.
+Our roadmap is focused on transitioning from individual structural generation to an expressive, culturally accurate voxel engine:
 
-### Run client locally / 本地运行开发客户端
-* **Forge**:
-  ```bash
-  ./gradlew :forge:runClient
-  ```
-* **Fabric**:
-  ```bash
-  ./gradlew :fabric:runClient
-  ```
+### 🌐 Phase 1: Structural Expansion (形制扩展 - 近期)
+* **More Roof Forms (多种屋顶支持)**: Implement additional classical roof types (e.g., Wudian/庑殿顶, Xuanshan/悬山顶, Yingshan/硬山顶, and Cuanjian/攒尖顶).
+* **Interior & Partition Systems (室内与隔断系统)**: Add parametric generation of doors, windows, decorative screens (Gehan/隔扇), and ceilings (Zaojing/藻井).
+* **Material Palette Mapping (材质画板映射)**: Create modular material presets matching historical periods (e.g., Ming/Qing vermilion-gold paint vs. Song/Yuan natural timbers).
 
-### Build production JARs / 构建发布包
-```bash
-./gradlew build
-```
-The output mod jars will be located in `forge/build/libs/` and `fabric/build/libs/`.
+### 🚀 Phase 2: Procedural Layouts & AI (程序化布设与人工智能 - 中期)
+* **Compound Layouts (合院组群生成)**: Support generating entire compound complexes (Siheyuan/四合院) and temple layouts dynamically with corridors and gates.
+* **AI-Assisted Reconstruction (AI 辅助营造)**: Combine text-based prompts or sketches with our parametric constraint compiler to auto-generate customized historical buildings.
+* **Terrain Adaptation (地形自适应台基)**: Implement automated terrace and foundation level alignment based on the slope of the Minecraft terrain.
 
----
-
-## 📄 License / 许可证
-This project is licensed under the MIT License - see the `LICENSE.txt` file for details.
+### 🌌 Phase 3: Large-Scale Simulation (大规模城池模拟 - 远期)
+* **Ancient City Procedural Generation (古建村落与城池生成)**: Generate entire historical towns or city grids (similar to ancient Chang'an/长安) dynamically.
+* **Dynamic Weathering (动态自然风化)**: Introduce visual weathering, moss growth, and material decay algorithms to simulate the passage of time on timber structures.
